@@ -37,6 +37,9 @@ static const int64 MAX_MONEY = 500000000 * COIN;
 static const int64 MAX_MINT_PROOF_OF_WORK = 3.5 * COIN;
 static const int64 MAX_MINT_PROOF_OF_STAKEV1 = 1 * COIN;
 static const int64 MIN_TXOUT_AMOUNT = MIN_TX_FEE;
+/** Split/Combine Threshold Max */
+static const int64 MAX_SPLIT_AMOUNT = 200 * COIN;
+static const int64 MAX_COMBINE_AMOUNT = MAX_SPLIT_AMOUNT * 2;
 //220440 Fork Value
 static const unsigned int VERSION2_SWITCH_TIME = 1401904800; 
 static const int64 MAX_MINT_PROOF_OF_STAKEV2 = 100 * CENT;
@@ -94,6 +97,8 @@ extern std::map<uint256, CBlock*> mapOrphanBlocks;
 // Settings
 extern int64 nTransactionFee;
 extern int64 nMinimumInputValue;
+extern int64 nCombineThreshold;
+extern int64 nSplitThreshold;
 extern bool fUseFastIndex;
 extern unsigned int nDerivationMethodIndex;
 
