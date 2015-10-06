@@ -12,6 +12,10 @@
 #include <QTimer>
 
 static const int64 nClientStartupTime = GetTime();
+double GetDifficulty(const CBlockIndex* blockindex);
+double GetPoWMHashPS(const CBlockIndex* blockindex = NULL);
+double GetPoSKernelPS(const CBlockIndex* blockindex = NULL);
+extern unsigned int nStakeTargetSpacing;
 
 ClientModel::ClientModel(OptionsModel *optionsModel, QObject *parent) :
     QObject(parent), optionsModel(optionsModel),
@@ -32,6 +36,16 @@ ClientModel::~ClientModel()
     unsubscribeFromCoreSignals();
 }
 
+double ClientModel::getPosKernalPS()
+{
+    return GetPoSKernelPS();
+}
+
+int ClientModel::getStakeTargetSpacing()
+{
+    return nStakeTargetSpacing;
+} 
+
 int ClientModel::getNumConnections() const
 {
     return vNodes.size();
@@ -40,6 +54,34 @@ int ClientModel::getNumConnections() const
 int ClientModel::getNumBlocks() const
 {
     return nBestHeight;
+}
+
+int ClientModel::getProtocolVersion() const
+{
+    return PROTOCOL_VERSION;
+}
+
+double ClientModel::getDifficulty(bool fProofofStake)
+{
+    if (fProofofStake)
+        return GetDifficulty(GetLastBlockIndex(pindexBest,true));
+    else
+        return GetDifficulty(GetLastBlockIndex(pindexBest,false));
+}
+
+double ClientModel::getProofOfStakeReward()
+{
+    return GetProofOfStakeReward(0, GetLastBlockIndex(pindexBest, true)->nBits, GetLastBlockIndex(pindexBest, true)->nTime, true)/10000;
+}
+
+int64 ClientModel::getMoneySupply()
+{
+    return pindexBest->nMoneySupply;
+}
+
+double ClientModel::getPoWMHashPS()
+{
+    return GetPoWMHashPS();
 }
 
 int ClientModel::getNumBlocksAtStartup()

@@ -25,6 +25,7 @@
 #include "notificator.h"
 #include "guiutil.h"
 #include "rpcconsole.h"
+#include "blockbrowser.h"
 
 #ifdef Q_OS_MAC
 #include "macdockiconhandler.h"
@@ -70,7 +71,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 {
     resize(500, 425);
     setWindowTitle(tr("Klingon Darsek") + " - " + tr("Wallet"));
-    setStyleSheet("QWidget { background : #000000;border-radius:10px; }  QToolButton { background : #000000; color: white;border-radius:10px;}QMenu::item {background-color: #222222; color: #FFAA00; padding: 2px 25px 2px 20px; border: 1px solid transparent;}QMenu::item:selected{border-color: red;background:#555555; }\
+    setStyleSheet("QWidget { background : #000000; color: orange; border-radius:10px; }  QToolButton { background : #000000; color: white;border-radius:10px;}QMenu::item {background-color: #222222; color: #FFAA00; padding: 2px 25px 2px 20px; border: 1px solid transparent;}QMenu::item:selected{border-color: red;background:#555555; }\
                  QMenuBar::item {background-color: #000000; color: #FF0000;}QMessageBox{background-color: #000000; color: orange;} QPushButton {padding: 3px;background : #000000 ;border-radius:10px; border-color: white; color: red;\
                   border-style: solid; border-width: 2px;font: bold 10px;min-width: 8em;}QmessageBox::StandardButton{border-color: white; color: red;  border-style: solid; border-width: 2px;font: bold 10px;min-width: 8em;}");
 #ifndef Q_OS_MAC
@@ -111,6 +112,8 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     sendCoinsPage = new SendCoinsDialog(this);
 
     signVerifyMessageDialog = new SignVerifyMessageDialog(this);
+    
+    blockBrowser = new BlockBrowser((this));
 
     centralWidget = new QStackedWidget(this);
     centralWidget->addWidget(overviewPage);
@@ -178,6 +181,9 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     connect(addressBookPage, SIGNAL(verifyMessage(QString)), this, SLOT(gotoVerifyMessageTab(QString)));
     // Clicking on "Sign Message" in the receive coins page sends you to the sign message tab
     connect(receiveCoinsPage, SIGNAL(signMessage(QString)), this, SLOT(gotoSignMessageTab(QString)));
+    // Clicking on "Block Browser" in the transaction page sends you to the blockbrowser
+     connect(transactionView, SIGNAL(blockBrowserSignal(QString)), this, SLOT(gotoBlockBrowser(QString)));
+
 
     gotoOverviewPage();
 }
@@ -259,6 +265,16 @@ void BitcoinGUI::createActions()
     changePassphraseAction->setToolTip(tr("Change the passphrase used for wallet encryption"));
     signMessageAction = new QAction(QIcon(":/icons/edit"), tr("Sign &message..."), this);
     verifyMessageAction = new QAction(QIcon(":/icons/transaction_0"), tr("&Verify message..."), this);
+    
+    blockAction = new QAction(QIcon(":/icons/blexp"), tr("Block Bro&wser"), this);
+    blockAction->setStatusTip(tr("Explore the BlockChain"));  
+    blockAction->setToolTip(blockAction->statusTip());
+    
+    blocksIconAction = new QAction(QIcon(":/icons/info"), tr("Current &Block Info"), this);
+    blocksIconAction->setStatusTip(tr("Get Current Block Information"));
+    blocksIconAction->setToolTip(blocksIconAction->statusTip());
+
+
 
     exportAction = new QAction(QIcon(":/icons/export"), tr("&Export"), this);
     exportAction->setToolTip(tr("Export the data in the current tab to a file"));
@@ -275,6 +291,8 @@ void BitcoinGUI::createActions()
     connect(changePassphraseAction, SIGNAL(triggered()), this, SLOT(changePassphrase()));
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
+    connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
+    connect(blocksIconAction, SIGNAL(triggered()), this, SLOT(blocksIconClicked()));
 }
 
 void BitcoinGUI::createMenuBar()
@@ -301,6 +319,11 @@ void BitcoinGUI::createMenuBar()
     settings->addAction(changePassphraseAction);
     settings->addSeparator();
     settings->addAction(optionsAction);
+    
+    QMenu *network = appMenuBar->addMenu(tr("&Network"));
+    network->addAction(blockAction);
+    network->addAction(blocksIconAction);
+
 
     QMenu *help = appMenuBar->addMenu(tr("&Help"));
     help->addAction(openRPCConsoleAction);
@@ -458,6 +481,38 @@ void BitcoinGUI::aboutClicked()
     dlg.exec();
 }
 
+void BitcoinGUI::blocksIconClicked()
+{
+   int unit = clientModel->getOptionsModel()->getDisplayUnit();
+
+   newmessage(tr("Extended Block Chain Information"),
+       tr("Client Version: %1\n"
+          "Protocol Version: %2\n"
+          "Last Block Number: %3\n"
+          "Last Block Time: %4\n\n"
+          "Current PoW Difficulty: %5\n"
+          "Current PoW Mh/s: %6\n"
+          "Current PoW Reward: %7\n\n"
+          "Current PoS Difficulty: %8\n"
+          "Current PoS Yearly Interest: %9\%\n\n"
+          "Stake Split Threshold %10\n"
+          "Stake Combine Threshold %11\n\n"
+          "Network Money Supply: %12\n")
+          .arg(clientModel->formatFullVersion())
+          .arg(clientModel->getProtocolVersion())
+          .arg(clientModel->getNumBlocks())
+          .arg(clientModel->getLastBlockDate().toString())
+          .arg(clientModel->getDifficulty())
+          .arg(clientModel->getPoWMHashPS())
+          .arg(tr("3.5000000")) //Hard Coded as KED is always 3.5, but should use GetProofOfWorkReward
+          .arg(clientModel->getDifficulty(true))
+          .arg(clientModel->getProofOfStakeReward())
+          .arg(BitcoinUnits::formatWithUnit(unit, nSplitThreshold, false))
+          .arg(BitcoinUnits::formatWithUnit(unit, nCombineThreshold, false)) 
+          .arg(BitcoinUnits::formatWithUnit(unit, clientModel->getMoneySupply(), false))
+        ,true);
+}
+
 void BitcoinGUI::setNumConnections(int count)
 {
     QString icon;
@@ -589,6 +644,20 @@ void BitcoinGUI::error(const QString &title, const QString &message, bool modal)
     }
 }
 
+void BitcoinGUI::newmessage(const QString &title, const QString &message, bool modal)
+{
+    // Message
+    //int nMBoxIcon = QMessageBox::Information;
+    if(modal)
+    {
+        QMessageBox::information(this, title, message, QMessageBox::Ok, QMessageBox::Ok);
+        //QMessageBox mBox((QMessageBox::Icon)nMBoxIcon, title, message, QMessageBox::Ok);
+        //mBox.exec();
+    } else {
+        notificator->notify(Notificator::Information, title, message);
+    }
+}
+
 void BitcoinGUI::changeEvent(QEvent *e)
 {
     QMainWindow::changeEvent(e);
@@ -698,6 +767,14 @@ void BitcoinGUI::gotoAddressBookPage()
     exportAction->setEnabled(true);
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
     connect(exportAction, SIGNAL(triggered()), addressBookPage, SLOT(exportClicked()));
+}
+
+void BitcoinGUI::gotoBlockBrowser(QString transactionId)
+{
+    if(!transactionId.isEmpty())
+        blockBrowser->setTransactionId(transactionId);
+
+    blockBrowser->show();
 }
 
 void BitcoinGUI::gotoReceiveCoinsPage()

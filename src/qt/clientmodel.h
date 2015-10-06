@@ -26,6 +26,13 @@ public:
     int getNumConnections() const;
     int getNumBlocks() const;
     int getNumBlocksAtStartup();
+    int getProtocolVersion() const;
+    qint64 getMoneySupply();
+    double getDifficulty(bool fProofofStake=false);
+    double getPoWMHashPS();
+    double getPosKernalPS();
+    int getStakeTargetSpacing();
+    double getProofOfStakeReward();
 
     QDateTime getLastBlockDate() const;
 
