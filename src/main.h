@@ -38,8 +38,8 @@ static const int64 MAX_MINT_PROOF_OF_WORK = 3.5 * COIN;
 static const int64 MAX_MINT_PROOF_OF_STAKEV1 = 1 * COIN;
 static const int64 MIN_TXOUT_AMOUNT = MIN_TX_FEE;
 /** Split/Combine Threshold Max */
-static const int64 MAX_SPLIT_AMOUNT = 200 * COIN;
-static const int64 MAX_COMBINE_AMOUNT = MAX_SPLIT_AMOUNT * 2;
+static const int64 MAX_SPLIT_AMOUNT = 1000 * COIN;
+static const int64 MAX_COMBINE_AMOUNT = 500 * COIN;
 //220440 Fork Value
 static const unsigned int VERSION2_SWITCH_TIME = 1401904800; 
 static const int64 MAX_MINT_PROOF_OF_STAKEV2 = 100 * CENT;

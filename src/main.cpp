@@ -81,8 +81,8 @@ const string strMessageMagic = "Darsek Signed Message:\n";
 
 int64 nTransactionFee = MIN_TX_FEE;
 int64 nMinimumInputValue = MIN_TX_FEE;
-int64 nSplitThreshold = 5 * COIN;
-int64 nCombineThreshold = nSplitThreshold * 2;
+int64 nSplitThreshold = 20 * COIN;
+int64 nCombineThreshold = 10 * COIN;
 
 extern enum Checkpoints::CPMode CheckpointsMode;
 

@@ -816,6 +816,13 @@ int CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate)
         LOCK(cs_wallet);
         while (pindex)
         {
+            // no need to read and scan block, if block was created before  
+            // our wallet birthday (as adjusted for block time variability)  
+            if (nTimeFirstKey && (pindex->nTime < (nTimeFirstKey - 7200)))
+            {
+                pindex = pindex->pnext;
+                continue;
+            }
             CBlock block;
             block.ReadFromDisk(pindex, true);
             BOOST_FOREACH(CTransaction& tx, block.vtx)
@@ -1572,7 +1579,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 nCredit += pcoin.first->vout[pcoin.second].nValue;
                 vwtxPrev.push_back(pcoin.first);
                 txNew.vout.push_back(CTxOut(0, scriptPubKeyOut));
-                if((nCredit >= nSplitThreshold) && (block.GetBlockTime() + nStakeSplitAge > txNew.nTime))
+                if(nCredit >= nSplitThreshold)
                     txNew.vout.push_back(CTxOut(0, scriptPubKeyOut)); //split stake
                 if (fDebug && GetBoolArg("-printcoinstake"))
                     printf("CreateCoinStake : added kernel type=%d\n", whichType);
