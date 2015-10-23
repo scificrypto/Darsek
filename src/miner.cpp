@@ -18,6 +18,7 @@ using namespace std;
 
 string strMintMessage = "<FONT COLOR = white>Info: Minting suspended due to locked wallet.";
 string strMintWarning;
+extern unsigned int nMinerSleep;
 
 int static FormatHashBlocks(void* pbuffer, unsigned int len)
 {
@@ -573,7 +574,7 @@ void StakeMiner(CWallet *pwallet)
             SetThreadPriority(THREAD_PRIORITY_LOWEST);
             Sleep(500);
         }
-        Sleep(500);
+        Sleep(nMinerSleep);
         continue;
     }
 }
