@@ -41,7 +41,8 @@ static const int64 MIN_TXOUT_AMOUNT = MIN_TX_FEE;
 static const int64 MAX_SPLIT_AMOUNT = 1000 * COIN;
 static const int64 MAX_COMBINE_AMOUNT = 500 * COIN;
 //220440 Fork Value
-static const unsigned int VERSION2_SWITCH_TIME = 1401904800; 
+static const unsigned int VERSION2_SWITCH_TIME = 1401904800;
+static const unsigned int VERSION3_SWITCH_TIME = 1505433600; // September, 15 2017
 static const int64 MAX_MINT_PROOF_OF_STAKEV2 = 100 * CENT;
 static const unsigned int BADBLOCK = 220440;
 

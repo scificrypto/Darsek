@@ -52,7 +52,7 @@ unsigned int nModifierInterval = 3 * 60 * 60; // time to elapse before new modif
 
 
 int nCoinbaseMaturity = 100;
-int nCoinbaseMaturityMultipiler = 400;
+int nCoinbaseMaturityMultipiler = 100;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
 
@@ -960,6 +960,8 @@ CBigNum inline GetProofOfStakeLimit(int nHeight, unsigned int nTime)
 int64 GetProofOfWorkReward(unsigned int nBits)
 {	
     int64 nSubsidy = 3.5 * COIN;
+    //if (pindexBest->GetBlockTime() > VERSION3_SWITCH_TIME)
+    //    nSubsidy = 4 * COIN;
     
     return min(nSubsidy, nSubsidy);
 }
@@ -972,6 +974,10 @@ int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nBits, unsigned int nTi
 		{
 			nSubsidyLimit = 1000 * COIN;
 			MAX_MINT_PROOF_OF_STAKE = MAX_MINT_PROOF_OF_STAKEV2;
+            if (nTime > VERSION3_SWITCH_TIME)
+		    {
+			  nSubsidyLimit = 4 * COIN;
+		    }
 		}
 
     if(fTestNet || nTime > STAKE_SWITCH_TIME)
@@ -1165,10 +1171,12 @@ unsigned int GetNextTargetRequiredV2(const CBlockIndex* pindexLast, bool fProofO
     if (pindexPrevPrev->pprev == NULL)
         return bnTargetLimit.GetCompact(); // second block
     
-
     int64 nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
     int64 nTargetSpacing = fProofOfStake? nStakeTargetSpacing : min(nTargetSpacingWorkMax, (int64) nStakeTargetSpacing * (1 + pindexLast->nHeight - pindexPrev->nHeight));
 
+    if (pindexPrev->GetBlockTime() > VERSION3_SWITCH_TIME)
+         nTargetSpacing *= 2;
+         
     if (nActualSpacing < 0)
           nActualSpacing = nTargetSpacing;
 
@@ -3099,7 +3107,7 @@ bool static AlreadyHave(CTxDB& txdb, const CInv& inv)
 // The message start string is designed to be unlikely to occur in normal data.
 // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 // a large 4-byte int at any alignment.
-unsigned char pchMessageStart[4] = { 0xda, 0xff, 0xda, 0xff };
+unsigned char pchMessageStart[4] = { 0xda, 0xff, 0xda, 0xfa };
 
 bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 {

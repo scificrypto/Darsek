@@ -1015,7 +1015,7 @@ boost::filesystem::path GetDefaultDataDir()
     // Unix: ~/.darsek
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Darsek";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "Darsek2";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -1027,10 +1027,10 @@ boost::filesystem::path GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     fs::create_directory(pathRet);
-    return pathRet / "Darsek";
+    return pathRet / "Darsek2";
 #else
     // Unix
-    return pathRet / ".darsek";
+    return pathRet / ".darsek2";
 #endif
 #endif
 }

@@ -46,6 +46,7 @@ namespace Checkpoints
         (202455, initCheckpoint(uint256("0x000000203848eb8eaf35dcf33aefa35b8668dc0ca98882fc47a466835d59a5a9"), 1402005827) )
         (254063, initCheckpoint(uint256("0x00000044b61c19f0f32dd4c7e85dac1efc81e2e036cee599d7f074173e86ca9b"), 1411533321) )
         (440000, initCheckpoint(uint256("0x000000116720ad1668a4d341dc3de18264e60ff1f31f4bffa91726260d7e32fc"), 1442688545) )
+        (903660, initCheckpoint(uint256("0x00000005fc58fe32d4ac422d4f43822fd54df3cfdaa898b7485cebe0b890c047"), 1505484214) )
      ;
 
 

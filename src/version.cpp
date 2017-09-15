@@ -8,10 +8,10 @@
 // Name of client reported in the 'version' message. Report the same name
 // for both bitcoind and bitcoin-qt, to make it harder for attackers to
 // target servers or GUI users specifically.
-const std::string CLIENT_NAME("Darsek");
+const std::string CLIENT_NAME("Darsek-Swap");
 
 // Client version number
-#define CLIENT_VERSION_SUFFIX   "-Worf"
+#define CLIENT_VERSION_SUFFIX   "-Swap"
 
 
 // The following part of the code determines the CLIENT_BUILD variable.
@@ -37,7 +37,7 @@ const std::string CLIENT_NAME("Darsek");
 #define GIT_ARCHIVE 1
 #ifdef GIT_ARCHIVE
 #    define GIT_COMMIT_ID ""
-#    define GIT_COMMIT_DATE "October 23, 2015"
+#    define GIT_COMMIT_DATE "September 15, 2017"
 #endif
 
 #define BUILD_DESC_FROM_COMMIT(maj,min,rev,build,commit) \
