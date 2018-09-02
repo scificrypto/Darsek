@@ -46,6 +46,7 @@ namespace Checkpoints
         (202455, initCheckpoint(uint256("0x000000203848eb8eaf35dcf33aefa35b8668dc0ca98882fc47a466835d59a5a9"), 1402005827) )
         (254063, initCheckpoint(uint256("0x00000044b61c19f0f32dd4c7e85dac1efc81e2e036cee599d7f074173e86ca9b"), 1411533321) )
         (440000, initCheckpoint(uint256("0x000000116720ad1668a4d341dc3de18264e60ff1f31f4bffa91726260d7e32fc"), 1442688545) )
+        (1139800, initCheckpoint(uint256("0x000000000289aee563cbda686d082728fca4f4562f7e6675cf5f54363ebc7810"), 1535359299) )
      ;
 
 
@@ -224,14 +225,10 @@ namespace Checkpoints
     // Automatically select a suitable sync-checkpoint 
     uint256 AutoSelectSyncCheckpoint()
     {
-        // Proof-of-work blocks are immediately checkpointed
-        // to defend against 51% attack which rejects other miners block 
-
-        // Select the last proof-of-work block
-        const CBlockIndex *pindex = GetLastBlockIndex(pindexBest, false);
-        // Search forward for a block within max span and maturity window
-        while (pindex->pnext && (pindex->GetBlockTime() + CHECKPOINT_MAX_SPAN <= pindexBest->GetBlockTime() || pindex->nHeight + std::min(6, nCoinbaseMaturity - 20) <= pindexBest->nHeight))
-            pindex = pindex->pnext;
+        const CBlockIndex *pindex = pindexBest;
+        // Search backward for a block within max span and maturity window
+        while (pindex->pprev && (pindex->nHeight + 8 > pindexBest->nHeight))
+            pindex = pindex->pprev;
         return pindex->GetBlockHash();
     }
 
@@ -403,7 +400,7 @@ namespace Checkpoints
 }
 
 // ppcoin: sync-checkpoint master key
-const std::string CSyncCheckpoint::strMasterPubKey = "04bc720b2591b9ce509dd89073280a6c33c10f83ddcaee5ccfcf04befa06a3a057e6c805b273f8c39cfe26431541f0a4bafa03fe7ab73db5ae71fedf1abcce1e24";
+const std::string CSyncCheckpoint::strMasterPubKey = "04a6110dbfd46e07a58956ce05b4912ba8126ddd02eab3c1d1979c9d7f84b74c675bf3b392309fd290afda73feea6a27b6c6b44b5b7ad780b9a782a3a10baa1fe7";
 
 std::string CSyncCheckpoint::strMasterPrivKey = "";
 
