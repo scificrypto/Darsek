@@ -38,10 +38,11 @@ static const int64 MAX_MINT_PROOF_OF_WORK = 3.5 * COIN;
 static const int64 MAX_MINT_PROOF_OF_STAKEV1 = 1 * COIN;
 static const int64 MIN_TXOUT_AMOUNT = MIN_TX_FEE;
 /** Split/Combine Threshold Max */
-static const int64 MAX_SPLIT_AMOUNT = 1000 * COIN;
+static const int64 MAX_SPLIT_AMOUNT = 3000 * COIN;
 static const int64 MAX_COMBINE_AMOUNT = 500 * COIN;
 //220440 Fork Value
-static const unsigned int VERSION2_SWITCH_TIME = 1401904800; 
+static const unsigned int VERSION2_SWITCH_TIME = 1401904800;
+static const unsigned int VERSION3_SWITCH_TIME = 1546300800; // Tue, 01 Jan 2019 00:00:00 GMT
 static const int64 MAX_MINT_PROOF_OF_STAKEV2 = 100 * CENT;
 static const unsigned int BADBLOCK = 220440;
 
@@ -68,6 +69,13 @@ static const uint256 hashGenesisBlock("0x00000a689b8ca932194a6869dc6cce89c91382b
 static const uint256 hashGenesisBlockTestNet("0x0"); // Will produce testnet hash in a future commit
 static const uint256 hashSuperBlock("0x00000034130c7a2e07dd1ab0538b521951ee92a1f6e549d0b3eb3b8e0929932c");
 static const int64 nMaxClockDrift = 2 * 60 * 60;        // two hours
+inline int64 GetClockDrift(int64 nTime)
+{
+    if (nTime > VERSION3_SWITCH_TIME)
+        return 10 * 60;  // up to 10 minutes Drift
+    else
+        return 2 * 60 * 60;  // up to 120 minutes Drift
+}
 
 extern libzerocoin::Params* ZCParams;
 extern CScript COINBASE_FLAGS;
@@ -128,6 +136,7 @@ bool CheckProofOfWork(uint256 hash, unsigned int nBits);
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake);
 unsigned int GetNextTargetRequiredV1(const CBlockIndex* pindexLast, bool fProofOfStake);
 unsigned int GetNextTargetRequiredV2(const CBlockIndex* pindexLast, bool fProofOfStake);
+unsigned int GetNextTargetRequiredV3(const CBlockIndex* pindexLast, bool fProofOfStake);
 int64 GetProofOfWorkReward(unsigned int nBits);
 int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nBits, unsigned int nTime, bool bCoinYearOnly=false);
 int64 GetProofOfStakeRewardV1(int64 nCoinAge, unsigned int nBits, unsigned int nTime, bool bCoinYearOnly=false);

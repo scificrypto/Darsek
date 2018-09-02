@@ -375,7 +375,7 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
         // Fill in header
         pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
         pblock->nTime          = max(pindexPrev->GetMedianTimePast()+1, pblock->GetMaxTransactionTime());
-        pblock->nTime          = max(pblock->GetBlockTime(), pindexPrev->GetBlockTime() - nMaxClockDrift);
+        pblock->nTime          = max(pblock->GetBlockTime(), pindexPrev->GetBlockTime() - GetClockDrift(pindexPrev->GetBlockTime()));
         if (!fProofOfStake)
             pblock->UpdateTime(pindexPrev);
         pblock->nNonce = 0;

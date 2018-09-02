@@ -52,7 +52,7 @@ unsigned int nModifierInterval = 3 * 60 * 60; // time to elapse before new modif
 
 
 int nCoinbaseMaturity = 100;
-int nCoinbaseMaturityMultipiler = 400;
+int nCoinbaseMaturityMultipiler = 200;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
 
@@ -82,8 +82,8 @@ const string strMessageMagic = "Darsek Signed Message:\n";
 
 int64 nTransactionFee = MIN_TX_FEE;
 int64 nMinimumInputValue = MIN_TX_FEE;
-int64 nSplitThreshold = 20 * COIN;
-int64 nCombineThreshold = 10 * COIN;
+int64 nSplitThreshold = 200 * COIN;
+int64 nCombineThreshold = 50 * COIN;
 
 extern enum Checkpoints::CPMode CheckpointsMode;
 
@@ -974,7 +974,13 @@ int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nBits, unsigned int nTi
 			MAX_MINT_PROOF_OF_STAKE = MAX_MINT_PROOF_OF_STAKEV2;
 		}
 
-    if(fTestNet || nTime > STAKE_SWITCH_TIME)
+    if (nTime > VERSION3_SWITCH_TIME)
+        {
+			
+			nRewardCoinYear = 75 * CENT;
+		}
+    
+    else if(fTestNet || nTime > STAKE_SWITCH_TIME)
     {
         // Stage 2 of emission process is PoS-based. It will be active on mainNet since 20 Jun 2013.
 
@@ -1059,7 +1065,7 @@ int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nBits, unsigned int nTi
     return nSubsidy;
 }
 
-static const int64 nTargetTimespan =30 * 60;  // 1-hour
+static const int64 nTargetTimespan =30 * 60;  // 30-min
 static const int64 nTargetSpacingWorkMax = 12 * nStakeTargetSpacing; // 12 minutes
 
 // get proof of work blocks max spacing according to hard-coded conditions
@@ -1185,9 +1191,50 @@ unsigned int GetNextTargetRequiredV2(const CBlockIndex* pindexLast, bool fProofO
     return bnNew.GetCompact();
 }
 
+unsigned int GetNextTargetRequiredV3(const CBlockIndex* pindexLast, bool fProofOfStake)
+{
+    CBigNum bnTargetLimit = !fProofOfStake ? bnProofOfWorkLimit : bnProofOfStakeLimit;
+
+    if (pindexLast == NULL)
+        return bnTargetLimit.GetCompact(); // genesis block
+
+    const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
+    if (pindexPrev->pprev == NULL)
+        return bnTargetLimit.GetCompact(); // first block
+    const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
+    if (pindexPrevPrev->pprev == NULL)
+        return bnTargetLimit.GetCompact(); // second block
+    
+
+    int64 nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
+    int64 nTargetSpacing = fProofOfStake? nStakeTargetSpacing * 2 : min(nTargetSpacingWorkMax * 2, (int64) nStakeTargetSpacing * 2 * (1 + pindexLast->nHeight - pindexPrev->nHeight));
+
+    if (nActualSpacing < 0)
+          nActualSpacing = 0;
+
+    else if(nActualSpacing > nTargetTimespan )
+    {
+        nActualSpacing = nTargetTimespan; //retarget -50% maximum
+    }
+    
+    CBigNum bnNew;
+    bnNew.SetCompact(pindexPrev->nBits);
+
+    int64 nInterval = 2 * nTargetTimespan / nTargetSpacing;
+    bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
+    bnNew /= ((nInterval + 1) * nTargetSpacing);
+
+    if (bnNew > bnTargetLimit)
+        bnNew = bnTargetLimit;
+
+    return bnNew.GetCompact();
+}
+
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
-  if (pindexLast->GetBlockTime() > VERSION2_SWITCH_TIME)
+   if (pindexLast->GetBlockTime() > VERSION3_SWITCH_TIME)
+      return GetNextTargetRequiredV3(pindexLast, fProofOfStake);
+   else if (pindexLast->GetBlockTime() > VERSION2_SWITCH_TIME)
       return GetNextTargetRequiredV2(pindexLast, fProofOfStake);
    else
       return GetNextTargetRequiredV1(pindexLast, fProofOfStake);
@@ -2143,7 +2190,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         return DoS(50, error("CheckBlock() : proof of work failed"));
 
     // Check timestamp
-    if (GetBlockTime() > GetAdjustedTime() + nMaxClockDrift)
+    if (GetBlockTime() > GetAdjustedTime() + GetClockDrift(GetBlockTime()))
         return error("CheckBlock() : block timestamp too far in the future");
 
     // First transaction must be coinbase, the rest must not be
@@ -2154,7 +2201,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             return DoS(100, error("CheckBlock() : more than one coinbase"));
 
     // Check coinbase timestamp
-    if (GetBlockTime() > (int64)vtx[0].nTime + nMaxClockDrift)
+    if (GetBlockTime() > (int64)vtx[0].nTime + GetClockDrift(GetBlockTime()))
         return DoS(50, error("CheckBlock() : coinbase timestamp is too early"));
 
     if (IsProofOfStake())
@@ -2259,10 +2306,10 @@ bool CBlock::AcceptBlock()
         return DoS(100, error("AcceptBlock() : incorrect %s", IsProofOfWork() ? "proof-of-work" : "proof-of-stake"));
 
     // Check timestamp against prev
-    if (GetBlockTime() <= pindexPrev->GetMedianTimePast() || GetBlockTime() + nMaxClockDrift < pindexPrev->GetBlockTime())
+    if (GetBlockTime() <= pindexPrev->GetMedianTimePast() || GetBlockTime() + GetClockDrift(GetBlockTime()) < pindexPrev->GetBlockTime())
         return error("AcceptBlock() : block's timestamp is too early");
 
-    // Check that all transactions are finalized
+    // Check that all transactions are finalizedGetClockDrift
     BOOST_FOREACH(const CTransaction& tx, vtx)
         if (!tx.IsFinal(nHeight, GetBlockTime()))
             return DoS(10, error("AcceptBlock() : contains a non-final transaction"));
@@ -2546,13 +2593,13 @@ bool CBlock::SignPoSBlock(CWallet& wallet)
     {
         if (wallet.CreateCoinStake(wallet, nBits, nSearchTime-nLastCoinStakeSearchTime, txCoinStake, key))
         {
-            if (txCoinStake.nTime >= max(pindexBest->GetMedianTimePast()+1, pindexBest->GetBlockTime() - nMaxClockDrift))
+            if (txCoinStake.nTime >= max(pindexBest->GetMedianTimePast()+1, pindexBest->GetBlockTime() - GetClockDrift(pindexBest->GetBlockTime())))
             {
                 // make sure coinstake would meet timestamp protocol
                 // as it would be the same as the block timestamp
                 vtx[0].nTime = nTime = txCoinStake.nTime;
                 nTime = max(pindexBest->GetMedianTimePast()+1, GetMaxTransactionTime());
-                nTime = max(GetBlockTime(), pindexBest->GetBlockTime() - nMaxClockDrift);
+                nTime = max(GetBlockTime(), pindexBest->GetBlockTime() - GetClockDrift(pindexBest->GetBlockTime()));
 
                 // we have to make sure that we have no future timestamps in
                 // our transactions set
