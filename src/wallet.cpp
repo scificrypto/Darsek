@@ -833,13 +833,6 @@ int CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate)
         LOCK(cs_wallet);
         while (pindex)
         {
-            // no need to read and scan block, if block was created before  
-            // our wallet birthday (as adjusted for block time variability)  
-            if (nTimeFirstKey && (pindex->nTime < (nTimeFirstKey - 7200)))
-            {
-                pindex = pindex->pnext;
-                continue;
-            }
             CBlock block;
             block.ReadFromDisk(pindex, true);
             BOOST_FOREACH(CTransaction& tx, block.vtx)
@@ -1569,7 +1562,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 {
     // The following split & combine thresholds are important to security
     // Should not be adjusted if you don't understand the consequences
-    static unsigned int nStakeSplitAge = (60 * 60 * 24 * 90);
+    // static unsigned int nStakeSplitAge = (60 * 60 * 24 * 90);
 
 
     CBigNum bnTargetPerCoinDay;
