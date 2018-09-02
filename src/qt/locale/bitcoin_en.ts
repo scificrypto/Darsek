@@ -17,7 +17,7 @@
     <message>
         <location line="+41"/>
         <source>Copyright © 2009-2013 The Novacoin developers</source>
-        <translation>Copyright © 2013 The Darsek developers</translation>
+        <translation>Copyright © 2009-2013 The Novacoin developers</translation>
     </message>
     <message>
         <location line="+13"/>

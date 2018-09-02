@@ -16,10 +16,10 @@
     </message>
     <message>
         <location line="+41"/>
-        <source>Copyright © 2009-2012 The Novacoin developers</source>
-        <translation>Все права защищены © 2009-2012 Разработчики Novacoin</translation>
-        <source>Copyright © 2013-2014 The Darsek developers</source>
-        <translation>Все права защищены © 2013 Разработчики Darsek</translation>
+        <source>Copyright © 2009-2013 The Novacoin developers</source>
+        <translation>Все права защищены © 2009-2013 Разработчики Novacoin</translation>
+        <source>Copyright © 2013-2018 The Darsek developers</source>
+        <translation>Все права защищены © 2013-2018 Разработчики Darsek</translation>
     </message>
     <message>
         <location line="+13"/>
