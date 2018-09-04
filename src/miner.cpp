@@ -1,7 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
 // Copyright (c) 2013 The NovaCoin developers
-// Copyright (c) 2013 The Darsek developers
+// Copyright (c) 2018 The Darsek developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,7 +13,7 @@ using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// BitcoinMiner
+// 
 //
 
 string strMintMessage = "<FONT COLOR = white>Info: Minting suspended due to locked wallet.";
@@ -529,8 +529,8 @@ void StakeMiner(CWallet *pwallet)
 {
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
 
-    // Make this thread recognisable as the mining thread
-    RenameThread("darsek-miner");
+    // Make this thread recognisable as the staking thread
+    RenameThread("darsek-stake");
 
     // Each thread has its own counter
     unsigned int nExtraNonce = 0;

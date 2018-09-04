@@ -3,7 +3,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "irc.h"
+
 #include "db.h"
 #include "net.h"
 #include "init.h"
@@ -1151,14 +1151,14 @@ void MapPort()
 // The first name is used as information source for addrman.
 // The second name should resolve to a list of seed addresses.
 static const char *strDNSSeed[][2] = {
-    {"altcointech.net", "dnsseed.ked.altcointech.net"},
-    {"altcointech.net", "seed.ked.altcointech.net"},
+    {"scificrypto.info", "dnsked.scificrypto.info"},
+    {"scificrypto.info", "seedked.scificrypto.info"},
 };
 
 void ThreadDNSAddressSeed(void* parg)
 {
     // Make this thread recognisable as the DNS seeding thread
-    RenameThread("bitcoin-dnsseed");
+    RenameThread("darsek-seed");
 
     try
     {
@@ -1858,10 +1858,6 @@ void StartNode(void* parg)
     // Map ports with UPnP
     if (fUseUPnP)
         MapPort();
-
-    // Get addresses from IRC and advertise ours
-    if (!NewThread(ThreadIRCSeed, NULL))
-        printf("Error: NewThread(ThreadIRCSeed) failed\n");
 
     // Send and receive from sockets, accept connections
     if (!NewThread(ThreadSocketHandler, NULL))
