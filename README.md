@@ -2,12 +2,12 @@ Darsek official development tree
 
 Darsek - a hybrid scrypt PoW + PoS based cryptocurrency.
 
-* 1 minute stake spacing
-* 1 minute PoW spacing
+* 2 minute stake spacing
+* 2 minute PoW spacing
 * Balanced PoW blocks and stakes weighting
 * 3.5 KED PoW subsidy 
-* 100% PoS interest annually
-* The PoS interest halves every x8 multiply of PoS difficulty
+* 75% PoS interest annually
+* 30 days minimum stake interval
 * Maximum PoS reward is 1000 coins
 * ~ 500 Million total coins
 
