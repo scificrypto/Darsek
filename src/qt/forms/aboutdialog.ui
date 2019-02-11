@@ -395,7 +395,7 @@ background-color: rgb(0, 0, 0);</string>
        </property>
        <property name="text">
         <string>Copyright © 2009-2013 The Novacoin developers
-Copyright © 2013-2018 The Darsek developers
+Copyright © 2013-2019 The Darsek developers
 </string>
        </property>
        <property name="margin">
