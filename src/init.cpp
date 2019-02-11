@@ -291,7 +291,7 @@ std::string HelpMessage()
         "  -rescan                " + _("Rescan the block chain for missing wallet transactions") + "\n" +
         "  -splitthreshold=<n>    " + _("Set stake split threshold within range (default 200),(max 3000))") + "\n" +
         "  -combinethreshold=<n>  " + _("Set stake combine threshold within range (default 50),(max 500))") + "\n" +
-        "  -minersleep=<n>        " + _("Set sleep time after stake in ms (default: 1000)") + "\n" +
+        "  -minersleep=<n>        " + _("Set sleep time after stake in ms (default: 5000)") + "\n" +
         "  -salvagewallet         " + _("Attempt to recover private keys from a corrupt wallet.dat") + "\n" +
         "  -checkblocks=<n>       " + _("How many blocks to check at startup (default: 600, 0 = all)") + "\n" +
         "  -checklevel=<n>        " + _("How thorough the block verification is (0-6, default: 1)") + "\n" +
@@ -362,7 +362,7 @@ bool AppInit2()
 
     nNodeLifespan = GetArg("-addrlifespan", 7);
     fUseFastIndex = GetBoolArg("-fastindex", true);
-    nMinerSleep = GetArg("-minersleep", 1000);
+    nMinerSleep = GetArg("-minersleep", 5000);
     CheckpointsMode = Checkpoints::STRICT;
     std::string strCpMode = GetArg("-cppolicy", "strict");
 
